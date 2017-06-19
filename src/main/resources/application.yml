@@ -1,0 +1,33 @@
+zuul:
+  routes:
+    ui:
+      url: http://localhost:8081
+      sensitive-headers:
+    admin:
+      url: http://localhost:8082
+      sensitive-headers:
+    data:
+      url: http://localhost:11200
+      sensitive-headers:
+    settings:
+      url: http://localhost:11300
+      sensitive-headers:
+    blacklist:
+      url: http://localhost:11400
+      sensitive-headers:
+    resources:
+      url: http://localhost:11500
+      sensitive-headers:
+    process:
+      url: http://localhost:11833
+      sensitive-headers:
+security:
+  sessions: ALWAYS
+spring:
+  session:
+    store-type: redis
+  application:
+    name: gateway
+ribbon:
+  eureka:
+    enabled: false

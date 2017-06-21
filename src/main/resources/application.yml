@@ -31,3 +31,9 @@ spring:
 ribbon:
   eureka:
     enabled: false
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        boot: DEBUG

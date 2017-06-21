@@ -23,9 +23,8 @@ public class AuthenticationConfig {
 	public UserDetailsService userDetailsService() {
 		JdbcDaoImpl jdbcImpl = new JdbcDaoImpl();
 		jdbcImpl.setDataSource(dataSource());
-		jdbcImpl.setUsersByUsernameQuery("select email,password from \"user\" where email = ?");
-		jdbcImpl.setAuthoritiesByUsernameQuery("select email, userrole from \"user_role\" where email = ?");
+		jdbcImpl.setUsersByUsernameQuery("select email,password,enabled from users where email = ? ;");
+		jdbcImpl.setAuthoritiesByUsernameQuery("select email, userrole from user_role where email = ? ;");
 		return jdbcImpl;
 	}
-
 }

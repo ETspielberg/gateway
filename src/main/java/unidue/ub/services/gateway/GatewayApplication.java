@@ -10,15 +10,17 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @SpringBootApplication
 @Controller
 @EnableZuulProxy
+@CrossOrigin(origins = "http://localhost:3000")
 public class GatewayApplication {
 	
-	@RequestMapping("/user")
+	@RequestMapping("/activeuser")
 	@ResponseBody
 	public Map<String, Object> user(Principal user) {
 		Map<String, Object> map = new LinkedHashMap<String, Object>();

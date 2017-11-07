@@ -15,14 +15,19 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	@Autowired
-	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+    @Autowired
+    public WebSecurityConfig(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Autowired
+	private void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 		auth.inMemoryAuthentication()
-			.withUser("user").password("password").roles("USER");
+			.withUser("user").password("password").roles("guest");
 	}
 		
-	@Autowired
-	UserDetailsService userDetailsService;
+	private final
+    UserDetailsService userDetailsService;
 
 	@Autowired
 	public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
@@ -38,7 +43,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.logout().and()
 		.authorizeRequests()
 			.antMatchers("/index.html", "/login", "/","/css/**","/js/**","/img/**").permitAll()
+				.antMatchers("/ui/**","/data/**","/settings/**","/resources/**","/services/**","/batch/**").hasRole("USER")
 			.anyRequest().authenticated()
+				.anyRequest().permitAll()
 			.and()
 		.csrf()
 			.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());

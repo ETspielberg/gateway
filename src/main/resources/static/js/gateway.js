@@ -16,15 +16,18 @@ function($http) {
 							+ credentials.password)
 		} : {};
 
-		self.user = ''
-		$http.get('user', {
+		self.user = '';
+		$http.get('activeuser', {
 			headers : headers
 		}).then(function(response) {
 			var data = response.data;
 			if (data.name) {
 				self.authenticated = true;
-				self.user = data.name
+				self.user = data.name;
 				self.admin = data && data.roles && data.roles.indexOf("ROLE_ADMIN")>-1;
+				self.fachreferent = data && data.roles && data.roles.indexOf("ROLE_FACHREFERENT")>-1;
+				role.analyst = data && data.roles && data.roles.indexOf("ROLE_ANALYST")>-1;
+                role.media =  data && data.roles && data.roles.indexOf("ROLE_MEDIA")>-1;
 			} else {
 				self.authenticated = false;
 				self.admin = false;
@@ -35,7 +38,7 @@ function($http) {
 			callback && callback(false);
 		});
 
-	}
+	};
 
 	authenticate();
 

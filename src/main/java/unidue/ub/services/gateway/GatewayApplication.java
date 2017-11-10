@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @SpringBootApplication
 @Controller
 @EnableZuulProxy
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:4200")
 public class GatewayApplication {
 	
 	@RequestMapping("/activeuser")

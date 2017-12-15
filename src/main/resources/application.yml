@@ -1,48 +1,73 @@
 zuul:
   routes:
-    ui:
-      path: /ui/**
-      url: http://localhost:3000
-      sensitive-headers:
+    fachref:
+      path: /fachref/**
+      url: http://localhost:8081
     admin:
       path: /admin/**
       url: http://localhost:8082
-      sensitive-headers:
-    data:
-      path: /resources/data/**
-      url: http://localhost:11200
-      sensitive-headers:
-    getter:
-      path: /resources/getter/**
-      url: http://localhost/11800
-      sensitive-headers:
+    media:
+      path: /mediamanagement/**
+      url: http://localhost:8083
+    knowledgebase:
+      path: /knowledgebase/**
+      url: http://localhost:8084
+    bibliometrics:
+      path: /bibliometrics/**
+      url: http://localhost:8085
+    protokoll:
+      path: /protokoll/**
+      url: http://localhost:8086
+    catalogue:
+      path: /catalogue/**
+      url: http://localhost:8087
     fileuploader:
       path: /files/**
       url: http://localhost:11855
       sensitive-headers:
     rss:
-      path: /rss/*
+      path: /rss/**
       url: http://localhost:11866
       sensitive-headers:
-    services:
-      path: /services/**
-      url: http://locahost:11844
-      sensitive-headers:
-    batch:
-      path: /batch/**
-      url: http://localhost:11822
-      sensitive-headers:
     settings:
-      path: /resources/settings/**
+      path: /api/settings/**
       url: http://localhost:11300
       sensitive-headers:
     blacklist:
-      path: blacklist/**
+      path: /api/blacklist/**
       url: http://localhost:11400
       sensitive-headers:
+    scientistdata:
+      path: /api/scientistdata/**
+      url: http://localhost:11900
+      sensitive-headers:
+    servicecatalogue:
+      path: /api/servicecatalogue/**
+      url: http://localhost:11100
+      sensitive-headers:
+    data:
+      path: /api/data/**
+      url: http://localhost:11200
+      sensitive-headers:
+    getter:
+      path: /api/getter/**
+      url: http://localhost:11800
+      sensitive-headers:
     resources:
-      path: /resources/journals/**
+      path: /api/resources/**
       url: http://localhost:11500
+      sensitive-headers:
+    sceduler:
+      path: /services/scheduler/**
+      url: http://localhost:11833
+      sensitive-headers:
+    services:
+      path: /services/run/**
+      url: http://locahost:11844
+      sensitive-headers:
+    batch:
+      path: /services/batch/**
+      url: http://localhost:11822
       sensitive-headers:
 security:
   sessions: ALWAYS

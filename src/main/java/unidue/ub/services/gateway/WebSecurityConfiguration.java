@@ -59,13 +59,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 		.httpBasic().and()
-		.formLogin().loginPage("/login").and()
+		.formLogin().loginPage("/login").failureForwardUrl("/login?error").and()
 		.logout().logoutUrl("/logout").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)).and()
 		.authorizeRequests()
-			.antMatchers("/index.html", "/login", "/register","/rss","/protokoll/**","/protokoll").permitAll()
+			.antMatchers("/index.html", "/login", "/register","/rss","/protokoll/**","/protokoll","ub-statistics").permitAll()
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/fachref/**").hasRole("FACHREFERENT")
 			.antMatchers("/mediamanagement/**").hasRole("MEDIA")
+			.antMatchers("/getter/**").hasIpAddress("::1")
 			.antMatchers("/api/**").authenticated()
 			.antMatchers("/files/**").authenticated()
 			.antMatchers("/services/**").authenticated()

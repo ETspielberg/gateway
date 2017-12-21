@@ -50,7 +50,7 @@ zuul:
       url: http://localhost:11200
       sensitive-headers:
     getter:
-      path: /api/getter/**
+      path: /getter/**
       url: http://localhost:11800
       sensitive-headers:
     resources:

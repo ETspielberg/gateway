@@ -84,11 +84,15 @@ public class GatewayController {
     @PatchMapping("/adminapi/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) throws IOException {
         if (updates.get("newPassword") != null){
+            log.info("setting new Password");
             User user = userService.updatePassword(id, updates.get("newPassword"));
             return ResponseEntity.ok(user);
         } else if (updates.get("roles") != null) {
-            ObjectMapper objectMapper = new ObjectMapper();
+            log.info("updating roles");
+            String rolesString = updates.get("roles");
+            log.info(rolesString);
             Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {}, updates.get( "roles"));
+            log.info("got " + roles.size() + " roles");
             User user = userService.updateRoles(id, roles);
             return ResponseEntity.ok(user);
         }

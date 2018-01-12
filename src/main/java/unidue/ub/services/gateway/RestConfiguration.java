@@ -11,7 +11,6 @@ import unidue.ub.services.gateway.model.User;
  * Created by Eike on 26.06.2017.
  */
 @Configuration
-@EnableRedisHttpSession
 public class RestConfiguration extends RepositoryRestConfigurerAdapter {
 
     @Override

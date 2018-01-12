@@ -23,14 +23,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	/*
-	@Bean(name = BeanIds.AUTHENTICATION_MANAGER)
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
-	*/
-
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -62,7 +54,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		.formLogin().loginPage("/login").failureForwardUrl("/login?error").and()
 		.logout().logoutUrl("/logout").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)).and()
 		.authorizeRequests()
-			.antMatchers("/index.html", "/login", "/register","/rss","/protokoll/**","/protokoll","ub-statistics").permitAll()
+			.antMatchers("/index.html", "/login", "/register","/rss","/protokoll/**","/protokoll").permitAll()
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/fachref/**").hasRole("FACHREFERENT")
 			.antMatchers("/mediamanagement/**").hasRole("MEDIA")

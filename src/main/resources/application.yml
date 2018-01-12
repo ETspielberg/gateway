@@ -2,44 +2,50 @@ zuul:
   routes:
     fachref:
       path: /fachref/**
-      url: http://localhost:8081
+      serviceId: fachref
+      sensitive-headers:
     admin:
       path: /admin/**
-      url: http://localhost:8082
+      serviceId: admin
+      sensitive-headers:
     media:
       path: /mediamanagement/**
       url: http://localhost:8083
+      sensitive-headers:
     knowledgebase:
       path: /knowledgebase/**
       url: http://localhost:8084
+      sensitive-headers:
     bibliometrics:
       path: /bibliometrics/**
       url: http://localhost:8085
+      sensitive-headers:
     protokoll:
       path: /protokoll/**
-      url: http://localhost:8086
+      serviceId: protokoll
     catalogue:
       path: /catalogue/**
       url: http://localhost:8087
+      sensitive-headers:
     fileuploader:
       path: /files/**
-      url: http://localhost:11855
+      serviceId: file-uploader
       sensitive-headers:
     rss:
       path: /rss/**
-      url: http://localhost:11866
+      serviceId: rssfeeder
       sensitive-headers:
     settings:
       path: /api/settings/**
-      url: http://localhost:11300
+      serviceId: settings-backend
       sensitive-headers:
     blacklist:
       path: /api/blacklist/**
-      url: http://localhost:11400
+      serviceId: blacklist-backend
       sensitive-headers:
     scientistdata:
       path: /api/scientistdata/**
-      url: http://localhost:11900
+      serviceId: knowledgebase-backend
       sensitive-headers:
     servicecatalogue:
       path: /api/servicecatalogue/**
@@ -47,27 +53,27 @@ zuul:
       sensitive-headers:
     data:
       path: /api/data/**
-      url: http://localhost:11200
+      serviceId: data-backend
       sensitive-headers:
     getter:
       path: /getter/**
-      url: http://localhost:11800
+      serviceId: getter
       sensitive-headers:
     resources:
       path: /api/resources/**
-      url: http://localhost:11500
+      serviceId: resources-backend
       sensitive-headers:
-    sceduler:
+    scheduler:
       path: /services/scheduler/**
       url: http://localhost:11833
       sensitive-headers:
     services:
       path: /services/run/**
-      url: http://locahost:11844
+      serviceId: servicerunner
       sensitive-headers:
     batch:
       path: /services/batch/**
-      url: http://localhost:11822
+      url: batch
       sensitive-headers:
 security:
   sessions: ALWAYS
@@ -76,6 +82,7 @@ spring:
     store-type: redis
   application:
     name: gateway
-ribbon:
-  eureka:
-    enabled: false
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

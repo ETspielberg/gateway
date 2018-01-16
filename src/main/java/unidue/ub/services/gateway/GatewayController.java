@@ -88,11 +88,7 @@ public class GatewayController {
             User user = userService.updatePassword(id, updates.get("newPassword"));
             return ResponseEntity.ok(user);
         } else if (updates.get("roles") != null) {
-            log.info("updating roles");
-            String rolesString = updates.get("roles");
-            log.info(rolesString);
             Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {}, updates.get( "roles"));
-            log.info("got " + roles.size() + " roles");
             User user = userService.updateRoles(id, roles);
             return ResponseEntity.ok(user);
         }

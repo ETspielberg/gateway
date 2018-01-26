@@ -65,7 +65,7 @@ zuul:
       sensitive-headers:
     scheduler:
       path: /services/scheduler/**
-      url: http://localhost:11833
+      ServiceId: scheduler
       sensitive-headers:
     services:
       path: /services/run/**
@@ -73,7 +73,7 @@ zuul:
       sensitive-headers:
     batch:
       path: /services/batch/**
-      url: batch
+      serviceId: batch
       sensitive-headers:
 security:
   sessions: ALWAYS

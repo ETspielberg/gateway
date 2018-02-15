@@ -22,8 +22,9 @@ public class UserValidator {
             log.info("username length not good.");
             return false;
         }
-        if (userServiceImpl.findByUsername(user.getUsername()) != null) {
-            log.info(userServiceImpl.findByUsername(user.getUsername()).toString());
+        User userFound = userServiceImpl.findByUsername(user.getUsername());
+        if (userFound != null) {
+            log.info("username " + userFound.getUsername() + "already used.");
             return false;
         }
         return true;

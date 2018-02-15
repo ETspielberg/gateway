@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 import unidue.ub.services.gateway.repository.RoleRepository;
@@ -61,14 +64,13 @@ public class GatewayController {
     }
 
     @PostMapping("/newUser")
-    @CrossOrigin(value = "http://localhost:8080")
     public String newUser(@RequestBody Map<String, String> userdetails) {
         User user = new User();
         user.setPassword(userdetails.get("password"));
         user.setUsername(userdetails.get("username"));
         if (!userValidator.validate(user)) {
             log.info("user not valid");
-            return  "error";
+            throw new ForbiddenException();
         }
         userService.save(user);
         securityService.autologin(user.getUsername(), user.getPassword());
@@ -142,4 +144,7 @@ public class GatewayController {
         }
         return data;
     }
+
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
+    public class ForbiddenException extends RuntimeException {}
 }

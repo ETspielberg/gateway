@@ -26,6 +26,7 @@ zuul:
     protokoll:
       path: /protokoll/**
       serviceId: protokoll
+      sensitive-headers:
     catalogue:
       path: /catalogue/**
       url: http://localhost:8087

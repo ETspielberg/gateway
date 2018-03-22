@@ -11,15 +11,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 import unidue.ub.services.gateway.repository.RoleRepository;
 import unidue.ub.services.gateway.repository.UserRepository;
-import unidue.ub.services.gateway.services.*;
+import unidue.ub.services.gateway.services.SecurityService;
+import unidue.ub.services.gateway.services.UserService;
+import unidue.ub.services.gateway.services.UserValidator;
 
-import javax.xml.ws.Response;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
@@ -78,19 +77,24 @@ public class GatewayController {
     }
 
     @GetMapping("/adminapi/users")
-    public ResponseEntity<List<User>> getUsers() { return ResponseEntity.ok(userRepository.findAll());}
+    public ResponseEntity<List<User>> getUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
 
     @GetMapping("/adminapi/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) { return ResponseEntity.ok(userRepository.findById(id));}
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userRepository.findById(id));
+    }
 
     @PatchMapping("/adminapi/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) throws IOException {
-        if (updates.get("newPassword") != null){
+        if (updates.get("newPassword") != null) {
             log.info("setting new Password");
             User user = userService.updatePassword(id, updates.get("newPassword"));
             return ResponseEntity.ok(user);
         } else if (updates.get("roles") != null) {
-            Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {}, updates.get( "roles"));
+            Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {
+            }, updates.get("roles"));
             User user = userService.updateRoles(id, roles);
             return ResponseEntity.ok(user);
         }
@@ -98,7 +102,9 @@ public class GatewayController {
     }
 
     @DeleteMapping("/adminapi/users/{id}")
-    public void deleteUser(@PathVariable Long id) { userRepository.delete(id);}
+    public void deleteUser(@PathVariable Long id) {
+        userRepository.delete(id);
+    }
 
     @PostMapping("/adminapi/users")
     public void saveUser(User user) {
@@ -113,9 +119,9 @@ public class GatewayController {
     @GetMapping("/adminapi/rolenames")
     public ResponseEntity<List<Role>> getRoleNames() {
         List<Role> roles = roleRepository.findAllDistinct();
-            for (Role role : roles) {
-                role.setUsers(null);
-            }
+        for (Role role : roles) {
+            role.setUsers(null);
+        }
         return ResponseEntity.ok(roles);
     }
 
@@ -134,7 +140,7 @@ public class GatewayController {
     }
 
     private <T> T fromJSON(final TypeReference<T> type,
-                                 final String jsonPacket) {
+                           final String jsonPacket) {
         T data = null;
 
         try {
@@ -146,5 +152,6 @@ public class GatewayController {
     }
 
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
-    public class ForbiddenException extends RuntimeException {}
+    public class ForbiddenException extends RuntimeException {
+    }
 }

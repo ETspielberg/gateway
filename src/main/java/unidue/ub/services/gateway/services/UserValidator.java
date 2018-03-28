@@ -19,12 +19,10 @@ public class UserValidator {
 
     public boolean validate(User user) {
         if (user.getUsername().length() < 4 || user.getUsername().length() > 32) {
-            log.info("username length not good.");
             return false;
         }
         User userFound = userServiceImpl.findByUsername(user.getUsername());
         if (userFound != null) {
-            log.info("username " + userFound.getUsername() + "already used.");
             return false;
         }
         return true;

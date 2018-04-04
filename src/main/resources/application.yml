@@ -12,7 +12,7 @@ zuul:
       serviceId: admin
       sensitive-headers:
     media:
-      path: /mediamanagement/**
+      path: /media/**
       url: http://localhost:8083
       sensitive-headers:
     knowledgebase:

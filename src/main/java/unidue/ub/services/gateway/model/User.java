@@ -30,9 +30,36 @@ public class User {
 	@JsonIgnore
 	private String password;
 
+	private String email;
+
+	private String fullname;
+
 	@ManyToMany
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
+
+	public User() {
+		fullname = "";
+		email = "";
+		username = "";
+		password = "";
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setFullname(String fullname) {
+		this.fullname = fullname;
+	}
+
+	public String getFullname() {
+		return fullname;
+	}
 
 	public Long getId() {
 		return id;

@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface RoleRepository extends JpaRepository<Role,Long> {
 
-    public Role findByName(String name);
+    Role findByName(String name);
 
     @Query(value = "select * from role;",nativeQuery = true)
-    public List<Role> findAllDistinct();
+    List<Role> findAllDistinct();
 
 }

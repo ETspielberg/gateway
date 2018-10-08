@@ -3,17 +3,32 @@ package unidue.ub.services.gateway.services;
 import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface UserService {
 
-    public void save(User user);
+    void save(User user);
 
-    public void delete(User user);
+    void delete(Long id);
 
-    public User findByUsername(String username);
+    User getUser(Long id);
 
-    public User updatePassword(Long id, String newPassword);
+    List<User> getAllUsers();
 
-    public User updateRoles(Long id, Set<Role> roles);
+    User findByUsername(String username);
+
+    User findByEmail(String email);
+
+    User updatePassword(Long id, String newPassword);
+
+    User updateRoles(Long id, Set<Role> roles);
+
+    User updateFullname(Long id, String fullname);
+
+    User updateEmail(Long id, String email);
+
+    User applyChanges(Long id, Map<String, String> updates);
 }

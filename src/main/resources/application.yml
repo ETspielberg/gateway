@@ -27,13 +27,9 @@ zuul:
       path: /protokoll/**
       serviceId: protokoll
       sensitive-headers:
-    catalogue:
-      path: /catalogue/**
-      url: http://localhost:8087
-      sensitive-headers:
-    fileuploader:
-      path: /files/**
-      serviceId: file-uploader
+    viewer:
+      path: /viewer/**
+      serviceId: viewer
       sensitive-headers:
     rss:
       path: /rss/**
@@ -79,8 +75,10 @@ zuul:
       path: /services/batch/**
       serviceId: batch
       sensitive-headers:
-security:
-  sessions: ALWAYS
+    counterretrieval:
+      path: /api/counterretrieval/**
+      serviceId: counter-retrieval
+      sensitive-headers:
 spring:
   session:
     store-type: redis

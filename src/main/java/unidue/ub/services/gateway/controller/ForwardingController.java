@@ -1,4 +1,4 @@
-package unidue.ub.services.gateway;
+package unidue.ub.services.gateway.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

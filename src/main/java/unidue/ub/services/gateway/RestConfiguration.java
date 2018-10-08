@@ -3,7 +3,6 @@ package unidue.ub.services.gateway;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 

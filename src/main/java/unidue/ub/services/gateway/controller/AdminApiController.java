@@ -15,11 +15,27 @@ import java.util.Map;
 @Controller
 public class AdminApiController {
 
-    @Autowired
+    private final
     UserService userService;
 
-    @Autowired
+    private final
     RoleRepository roleRepository;
+
+    @Autowired
+    public AdminApiController(UserService userService, RoleRepository roleRepository) {
+        this.userService = userService;
+        this.roleRepository = roleRepository;
+    }
+
+    @GetMapping("/adminapi/users")
+    public ResponseEntity<List<User>> getUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/adminapi/users/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUser(id));
+    }
 
     @PatchMapping("/adminapi/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody Map<String, String> updates) {

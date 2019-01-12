@@ -3,28 +3,27 @@ package unidue.ub.services.gateway.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import unidue.ub.services.gateway.model.User;
-
-import java.util.Arrays;
 
 @Service
 public class SecurityServiceImpl implements SecurityService{
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    private final DatabaseUserDetailsServiceImpl userService;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    public SecurityServiceImpl(AuthenticationManager authenticationManager, DatabaseUserDetailsServiceImpl userService) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+    }
 
     @Override
     public void autologin(String username, String password) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = userService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
         authenticationManager.authenticate(usernamePasswordAuthenticationToken);
         if (usernamePasswordAuthenticationToken.isAuthenticated()) {

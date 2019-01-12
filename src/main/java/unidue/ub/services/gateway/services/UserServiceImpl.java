@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        if (userRepository.findAll() == null)
+        if (userRepository.findAll().size() == 0)
             user.addRole(roleRepository.findByName("ROLE_ADMIN"));
         else
             user.addRole(roleRepository.findByName("ROLE_GUEST"));
@@ -124,9 +124,11 @@ public class UserServiceImpl implements UserService {
             }, updates.get("roles"));
             return updateRoles(id, roles);
         } else if (updates.get("fullname") != null) {
+            log.info("setting full name");
             return updateFullname(id, updates.get("fullname"));
         }
-        else if (updates.get("fullname") != null) {
+        else if (updates.get("email") != null) {
+            log.info("setting email");
             return updateEmail(id, updates.get("email"));
         }
         return null;

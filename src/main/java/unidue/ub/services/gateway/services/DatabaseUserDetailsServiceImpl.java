@@ -14,10 +14,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class DatabaseUserDetailsServiceImpl implements UserDetailsService {
+
+    private final UserServiceImpl userService;
 
     @Autowired
-    private UserService userService;
+    public DatabaseUserDetailsServiceImpl(UserServiceImpl userService) {
+        this.userService = userService;
+    }
 
     @Override
     @Transactional(readOnly = true)

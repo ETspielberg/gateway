@@ -1,3 +1,5 @@
+server:
+  port: ${server_port:8082}
 zuul:
   host:
     connect-timeout-millis: 120000
@@ -13,7 +15,7 @@ zuul:
       sensitive-headers:
     media:
       path: /media/**
-      url: http://localhost:8083
+      serviceId: media
       sensitive-headers:
     knowledgebase:
       path: /knowledgebase/**
@@ -63,10 +65,6 @@ zuul:
       path: /api/resources/**
       serviceId: resources-backend
       sensitive-headers:
-    scheduler:
-      path: /services/scheduler/**
-      ServiceId: scheduler
-      sensitive-headers:
     services:
       path: /services/run/**
       serviceId: servicerunner
@@ -80,11 +78,33 @@ zuul:
       serviceId: counter-retrieval
       sensitive-headers:
 spring:
+  security:
+    user:
+      name: dalek
+      password: 3l1m1nat3
+  cloud:
+    refresh:
+      refreshable: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   session:
     store-type: redis
   application:
     name: gateway
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            lob.non_contextual_creation: true
 eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
@@ -97,3 +117,7 @@ hystrix:
 ribbon:
   ReadTimeout: 120000
   ConnectTimeout: 120000
+tomcat:
+  ajp:
+    port: ${ajp_port:8009}
+    enabled: true

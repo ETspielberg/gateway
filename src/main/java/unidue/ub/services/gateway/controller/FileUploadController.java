@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import unidue.ub.services.gateway.model.FileWithLink;
 import unidue.ub.services.gateway.services.StorageService;
 import unidue.ub.services.gateway.exceptions.StorageFileNotFoundException;
 

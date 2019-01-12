@@ -7,8 +7,12 @@ import unidue.ub.services.gateway.model.User;
 @Component
 public class UserValidator {
 
+    private final UserServiceImpl userServiceImpl;
+
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    public UserValidator(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
+    }
 
     public boolean supports(Class<?> aClass) {
         return User.class.equals(aClass);

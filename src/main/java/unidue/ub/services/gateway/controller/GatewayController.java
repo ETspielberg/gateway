@@ -10,7 +10,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import unidue.ub.services.gateway.model.User;
-import unidue.ub.services.gateway.repository.RoleRepository;
 import unidue.ub.services.gateway.services.SecurityService;
 import unidue.ub.services.gateway.services.UserService;
 import unidue.ub.services.gateway.services.UserValidator;
@@ -21,18 +20,23 @@ import java.util.*;
 @Controller
 public class GatewayController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
-    @Autowired
-    private UserValidator userValidator;
+    private final UserValidator userValidator;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    public GatewayController(UserService userService, SecurityService securityService, UserValidator userValidator) {
+        this.userService = userService;
+        this.securityService = securityService;
+        this.userValidator = userValidator;
+    }
+
     @RequestMapping("/activeuser")
+    @CrossOrigin("http://localhost:4200")
     @ResponseBody
     public Map<String, Object> user(Principal principal) {
         try {
@@ -76,16 +80,6 @@ public class GatewayController {
         userService.save(user);
         securityService.autologin(user.getUsername(), user.getPassword());
         return "success";
-    }
-
-    @GetMapping("/adminapi/users")
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    @GetMapping("/adminapi/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUser(id));
     }
 
     @PutMapping("/updateCurrentUser")

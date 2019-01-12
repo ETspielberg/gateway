@@ -8,6 +8,7 @@ import org.apache.catalina.connector.Connector;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 @EnableZuulProxy
 @EnableEurekaClient
+@EntityScan({"unidue.ub.services.gateway.model"})
 public class GatewayApplication {
 
 	@Value("${tomcat.ajp.port}")
@@ -29,7 +31,7 @@ public class GatewayApplication {
 	@Bean
 	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainer() {
 		return server -> {
-			if (server instanceof TomcatServletWebServerFactory) {
+			if (server != null) {
 				server.addAdditionalTomcatConnectors(redirectConnector());
 			}
 		};

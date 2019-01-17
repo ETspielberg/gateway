@@ -77,6 +77,10 @@ zuul:
       path: /api/counterretrieval/**
       serviceId: counter-retrieval
       sensitive-headers:
+    stockanalyzer:
+      path: /api/stockanalyzer/**
+      serviceId: stock-analyzer
+      sensitive-headers:
 spring:
   security:
     user:

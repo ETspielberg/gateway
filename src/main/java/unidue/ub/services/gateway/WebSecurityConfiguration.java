@@ -97,7 +97,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers("/error").permitAll()
 				.antMatchers("/saml/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/viewer/**","/viewer","/files/viewer/**").permitAll()
-				.antMatchers("/api").access("hasIpAddress('::1') or isAuthenticated()")
+				.antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
 			.antMatchers("/files/**").authenticated()
 			.antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
 			.antMatchers("/admin/**").hasRole("ADMIN")

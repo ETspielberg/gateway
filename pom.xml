@@ -8,7 +8,7 @@
 	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
-	<name>FachRef-Gateway</name>
+	<name>gateway</name>
 	<description>Gateway to the FachRef-Assistant</description>
 
 	<parent>

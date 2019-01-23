@@ -33,6 +33,7 @@ public class StorageServiceImpl implements StorageService {
     public void setModule(String module) {
         this.module = module;
     }
+
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -109,6 +110,14 @@ public class StorageServiceImpl implements StorageService {
         if (!rootLocation.toFile().exists())
             rootLocation.toFile().mkdirs();
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
+    }
+
+    @Override
+    public boolean deleteFile(String filename) {
+        rootLocation = Paths.get(datadir + "/" + module);
+        Path path = load(filename);
+        boolean deleted = path.toFile().delete();
+        return deleted;
     }
 
     @Override

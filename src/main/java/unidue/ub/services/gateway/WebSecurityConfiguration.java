@@ -1,6 +1,7 @@
 package unidue.ub.services.gateway;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
 
 @Configuration
@@ -50,21 +52,22 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
             .httpBasic().and()
             .authorizeRequests()
-                .antMatchers(HttpMethod.GET,"/files/viewer/**").permitAll()
-                .antMatchers("/files/**", "/files/").authenticated()
                 .antMatchers("/index.html", "/login", "/register", "/rss").permitAll()
                 .antMatchers("/error").permitAll()
                 .antMatchers("/saml/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/viewer/**", "/viewer").permitAll()
                 .antMatchers(HttpMethod.GET, "/protokoll/**", "/protokoll", "/getter/**").permitAll()
+                .antMatchers("/files/**", "/files").authenticated()
+                .antMatchers(HttpMethod.GET,"/files/viewer/**").permitAll()
                 .antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
                 .antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/fachref/**").hasRole("FACHREFERENT")
                 .antMatchers("/media/**").hasRole("MEDIA")
                 .anyRequest().authenticated()
+                .anyRequest().permitAll()
             .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout");
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/");
         http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
                 //.authenticationEntryPoint(getAuthEntryPoint())
             .and()
@@ -75,6 +78,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                 .permitAll();
+    }
+
+    @Bean
+    public static ServletListenerRegistrationBean httpSessionEventPublisher() {
+        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
 
 

@@ -20,6 +20,8 @@ public interface StorageService {
 
     void deleteAll();
 
+    boolean deleteFile(String filename);
+
     void setModule(String module);
 
 }

@@ -1,5 +1,7 @@
 package unidue.ub.services.gateway.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -19,13 +21,14 @@ public class FileUploadController {
 
     private final StorageService storageService;
 
+    private static Logger log = LoggerFactory.getLogger(FileUploadController.class);
+
     @Autowired
     public FileUploadController(StorageService storageService) {
         this.storageService = storageService;
     }
 
     @GetMapping("/files/{module}")
-    @CrossOrigin(origins = { "http://localhost:4200"})
     public ResponseEntity<?> listUploadedFiles(@PathVariable("module") String module) {
         storageService.setModule(module);
         return ResponseEntity.ok(storageService.loadAll().map(
@@ -36,7 +39,6 @@ public class FileUploadController {
 
     @GetMapping("/files/{module}/{filename:.+}")
     @ResponseBody
-    @CrossOrigin(origins = { "http://localhost:4200"})
     public ResponseEntity<Resource> serveFile(@PathVariable String filename, @PathVariable("module") String module) {
         storageService.setModule(module);
         Resource file = storageService.loadAsResource(filename);
@@ -45,7 +47,6 @@ public class FileUploadController {
     }
 
     @PostMapping("/files/")
-    @CrossOrigin(origins = { "http://localhost:4200"})
     public String handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("module") String module,
                                    RedirectAttributes redirectAttributes) {
         storageService.setModule(module);
@@ -54,6 +55,25 @@ public class FileUploadController {
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
 
         return "redirect:/";
+    }
+
+    @DeleteMapping("/files/{module}/{filename:.+}")
+    public ResponseEntity<?> deletFile(@PathVariable String filename, @PathVariable("module") String module) {
+        storageService.setModule(module);
+        try {
+            boolean deleted = storageService.deleteFile(filename);
+            if (deleted) {
+                log.info("deleted file " + filename);
+                return ResponseEntity.accepted().build();
+            }
+            else {
+                log.warn("could not delete file " + filename);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.warn("could not find file " + filename);
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)

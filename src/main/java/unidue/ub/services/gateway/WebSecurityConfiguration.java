@@ -1,21 +1,8 @@
 package unidue.ub.services.gateway;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.velocity.app.VelocityEngine;
-import org.opensaml.saml2.metadata.provider.AbstractMetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProvider;
-import org.opensaml.saml2.metadata.provider.MetadataProviderException;
-import org.opensaml.xml.XMLObject;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.parse.ParserPool;
-import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,48 +11,18 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.saml.*;
-import org.springframework.security.saml.context.SAMLContextProviderImpl;
-import org.springframework.security.saml.key.JKSKeyManager;
-import org.springframework.security.saml.key.KeyManager;
-import org.springframework.security.saml.log.SAMLDefaultLogger;
-import org.springframework.security.saml.metadata.*;
-import org.springframework.security.saml.parser.ParserPoolHolder;
-import org.springframework.security.saml.processor.*;
-import org.springframework.security.saml.util.VelocityFactory;
-import org.springframework.security.saml.websso.*;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.w3c.dom.Document;
-import unidue.ub.services.gateway.services.SAMLUserDetailsServiceImpl;
 import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	//@Autowired
-	//private SAMLUserDetailsServiceImpl samlUserDetailsServiceImpl;
+    //@Autowired
+    //private SAMLUserDetailsServiceImpl samlUserDetailsServiceImpl;
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
     @Override
@@ -73,52 +30,52 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-	@Autowired
-	private DatabaseUserDetailsServiceImpl userDetailsServiceImpl;
+    @Autowired
+    private DatabaseUserDetailsServiceImpl userDetailsServiceImpl;
 
     @Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-    	return new BCryptPasswordEncoder();
-	}
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Autowired
-	public void configureAuthSource(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(bCryptPasswordEncoder());
-		//auth.authenticationProvider(samlAuthenticationProvider());
-	}
+    @Autowired
+    public void configureAuthSource(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(bCryptPasswordEncoder());
+        //auth.authenticationProvider(samlAuthenticationProvider());
+    }
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		//http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
-		http
-		.httpBasic().and()
-		.authorizeRequests()
-			.antMatchers("/index.html", "/login", "/register","/rss").permitAll()
-				.antMatchers("/error").permitAll()
-				.antMatchers("/saml/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/viewer/**","/viewer","/files/viewer/**").permitAll()
-				.antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
-			.antMatchers("/files/**").authenticated()
-			.antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
-			.antMatchers("/admin/**").hasRole("ADMIN")
-			.antMatchers("/fachref/**").hasRole("FACHREFERENT")
-			.antMatchers("/media/**").hasRole("MEDIA")
-			.antMatchers(HttpMethod.GET, "/protokoll/**","/protokoll","/getter/**").permitAll()
-			.anyRequest().authenticated()
-	    	.anyRequest().permitAll()
-			.and()
-		.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout");
-		http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
-				//.authenticationEntryPoint(getAuthEntryPoint())
-				.and()
-				.formLogin()
-				.loginPage("/login").failureForwardUrl("/login?error")
-				.and()
-				.logout()
-				.logoutUrl("/logout")
-				.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-				.permitAll();
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
+        http
+            .httpBasic().and()
+            .authorizeRequests()
+                .antMatchers(HttpMethod.GET,"/files/viewer/**").permitAll()
+                .antMatchers("/files/**", "/files/").authenticated()
+                .antMatchers("/index.html", "/login", "/register", "/rss").permitAll()
+                .antMatchers("/error").permitAll()
+                .antMatchers("/saml/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/viewer/**", "/viewer").permitAll()
+                .antMatchers(HttpMethod.GET, "/protokoll/**", "/protokoll", "/getter/**").permitAll()
+                .antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
+                .antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
+                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/fachref/**").hasRole("FACHREFERENT")
+                .antMatchers("/media/**").hasRole("MEDIA")
+                .anyRequest().authenticated()
+            .and()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout");
+        http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
+                //.authenticationEntryPoint(getAuthEntryPoint())
+            .and()
+                .formLogin()
+                .loginPage("/login").failureForwardUrl("/login?error")
+            .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .permitAll();
+    }
 
 
 	/*

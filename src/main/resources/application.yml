@@ -23,7 +23,7 @@ zuul:
       sensitive-headers:
     bibliometrics:
       path: /bibliometrics/**
-      url: http://localhost:8085
+      url: bibliometrics-backend
       sensitive-headers:
     protokoll:
       path: /protokoll/**
@@ -32,6 +32,10 @@ zuul:
     viewer:
       path: /viewer/**
       serviceId: viewer
+      sensitive-headers:
+    queryexecution:
+      path: /bibliometrics/queryExecution
+      serviceId: query-execution
       sensitive-headers:
     rss:
       path: /rss/**
@@ -52,6 +56,10 @@ zuul:
     servicecatalogue:
       path: /api/servicecatalogue/**
       url: http://localhost:11100
+      sensitive-headers:
+    scritping:
+      path: /api/scripts/**
+      serviceId: scripts
       sensitive-headers:
     data:
       path: /api/data/**

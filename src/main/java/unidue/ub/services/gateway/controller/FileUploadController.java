@@ -46,8 +46,8 @@ public class FileUploadController {
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
-    @PostMapping("/files/")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("module") String module,
+    @PostMapping("/files/{module}")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file, @PathVariable("module") String module,
                                    RedirectAttributes redirectAttributes) {
         storageService.setModule(module);
         storageService.store(file);

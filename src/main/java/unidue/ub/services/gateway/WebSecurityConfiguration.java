@@ -64,6 +64,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/fachref/**").hasRole("FACHREFERENT")
                 .antMatchers("/media/**").hasRole("MEDIA")
+                .antMatchers("/bibliometrics/**").authenticated() //.hasRole("BIBLIOMETRICS")
                 .anyRequest().authenticated()
                 .anyRequest().permitAll()
             .and()

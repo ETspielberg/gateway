@@ -51,6 +51,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
         http
             .httpBasic().and()
+                .authorizeRequests().antMatchers(HttpMethod.GET, "/api/counterretrieval/ebookcounter/**").permitAll().and()
+                .authorizeRequests().antMatchers(HttpMethod.POST, "/api/elisa/sendEav").hasIpAddress("132.252.181.87").and()
             .authorizeRequests()
                 .antMatchers("/index.html", "/login", "/register", "/rss").permitAll()
                 .antMatchers("/error").permitAll()

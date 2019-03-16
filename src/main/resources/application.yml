@@ -69,6 +69,10 @@ zuul:
       path: /getter/**
       serviceId: getter
       sensitive-headers:
+    elisa:
+      path: /api/elisa/**
+      serviceId: elisa
+      sensitive-headers:
     resources:
       path: /api/resources/**
       serviceId: resources-backend

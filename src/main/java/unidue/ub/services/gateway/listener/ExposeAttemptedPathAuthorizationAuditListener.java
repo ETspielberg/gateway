@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/*
 @Component
 public class ExposeAttemptedPathAuthorizationAuditListener extends AbstractAuthorizationAuditListener {
 
@@ -35,3 +35,4 @@ public class ExposeAttemptedPathAuthorizationAuditListener extends AbstractAutho
         publish(new AuditEvent(event.getAuthentication().getName(), AUTHORIZATION_FAILURE, data));
     }
 }
+*/

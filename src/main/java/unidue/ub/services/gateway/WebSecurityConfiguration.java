@@ -71,7 +71,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .anyRequest().permitAll()
             .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/counterbuilder");
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/counterbuilder","/api/elisa/receiveEav","/api/elisa/sendEav");
         http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
                 //.authenticationEntryPoint(getAuthEntryPoint())
             .and()

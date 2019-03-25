@@ -30,7 +30,7 @@ zuul:
       serviceId: protokoll
       sensitive-headers:
     viewer:
-      path: /viewer/**
+      path: /service/viewer/**
       serviceId: viewer
       sensitive-headers:
     queryexecution:
@@ -70,8 +70,12 @@ zuul:
       serviceId: getter
       sensitive-headers:
     elisa:
-      path: /api/elisa/**
+      path: /service/elisa/**
       serviceId: elisa
+      sensitive-headers:
+    resolver:
+      path: /service/linksolver/**
+      serviceId: linksolver
       sensitive-headers:
     resources:
       path: /api/resources/**

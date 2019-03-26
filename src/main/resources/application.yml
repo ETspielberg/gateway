@@ -75,7 +75,7 @@ zuul:
       sensitive-headers:
     resolver:
       path: /service/linksolver/**
-      serviceId: linksolver
+      serviceId: linksolver-wrapper
       sensitive-headers:
     resources:
       path: /api/resources/**

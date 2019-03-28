@@ -14,6 +14,9 @@ public class SanitizedRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getQueryString() {
-        return super.getQueryString().replace("{","");
+        String queryString = super.getQueryString();
+        if (queryString.contains("{"))
+            queryString = queryString.replace("{","");
+        return queryString;
     }
 }

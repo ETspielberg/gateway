@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
+
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
 @Component
 public class ZuulPreFilter extends ZuulFilter {
@@ -35,6 +36,7 @@ public class ZuulPreFilter extends ZuulFilter {
         HttpServletRequest request = ctx.getRequest();
         SanitizedRequest sanitizedRequest = new SanitizedRequest(request);
         ctx.setRequest(sanitizedRequest);
+        ctx.addZuulRequestHeader("remoteAddress", request.getRemoteAddr());
         return null;
     }
 }

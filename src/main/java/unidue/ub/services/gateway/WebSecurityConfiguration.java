@@ -51,6 +51,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
         http
             .httpBasic().and()
+                .authorizeRequests().antMatchers(HttpMethod.POST, "/service/elisa/**").permitAll().and()
                 .authorizeRequests().antMatchers(HttpMethod.GET, "/api/counterretrieval/ebookcounter/**").permitAll().and()
                 //.hasIpAddress("132.252.181.87").and()
             .authorizeRequests()
@@ -70,7 +71,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .anyRequest().permitAll()
             .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/counterbuilder","/api/elisa/sendEav", "/api/elisa/receiveEav");
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/counterbuilder","/service/elisa/sendEav", "/service/elisa/receiveEav");
         http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
                 //.authenticationEntryPoint(getAuthEntryPoint())
             .and()

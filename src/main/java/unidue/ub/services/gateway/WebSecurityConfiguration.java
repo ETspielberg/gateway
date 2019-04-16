@@ -65,6 +65,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
                 .antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
                 .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/system/**").hasRole("ADMIN")
                 .antMatchers("/fachref/**").hasRole("FACHREFERENT")
                 .antMatchers("/media/**").hasRole("MEDIA")
                 .antMatchers("/bibliometrics/**").authenticated() //.hasRole("BIBLIOMETRICS")

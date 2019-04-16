@@ -98,8 +98,11 @@ zuul:
       serviceId: stock-analyzer
       sensitive-headers:
     eureka:
-      path: /admin/eureka/**
+      path: /system/eureka/**
       url: http://localhost:8761
+    elk:
+      path: /system/elk/**
+      url: http://132.252.176.224:5601
 spring:
   security:
     user:
@@ -143,4 +146,3 @@ ribbon:
 tomcat:
   ajp:
     port: ${ajp_port:8009}
-    enabled: true

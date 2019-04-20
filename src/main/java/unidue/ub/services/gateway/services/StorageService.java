@@ -18,8 +18,6 @@ public interface StorageService {
 
     Resource loadAsResource(String filename);
 
-    void deleteAll();
-
     boolean deleteFile(String filename);
 
     void setModule(String module);

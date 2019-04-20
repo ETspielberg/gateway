@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import unidue.ub.services.gateway.exceptions.ForbiddenException;
 import unidue.ub.services.gateway.model.User;
 import unidue.ub.services.gateway.services.SecurityService;
 import unidue.ub.services.gateway.services.UserService;
@@ -36,7 +37,6 @@ public class GatewayController {
     }
 
     @RequestMapping("/activeuser")
-    @CrossOrigin("http://localhost:4200")
     @ResponseBody
     public Map<String, Object> user(Principal principal) {
         try {
@@ -59,8 +59,9 @@ public class GatewayController {
         return ResponseEntity.ok(user);
     }
 
-    @RequestMapping("/login")
-    public String login() {
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        log.info(username + " - " + password);
         return "forward:/";
     }
 
@@ -86,9 +87,5 @@ public class GatewayController {
     public ResponseEntity<User> updateCurrentUser(@RequestBody Map<String, String> updates) {
         User user = userService.findByUsername(updates.get("username"));
         return ResponseEntity.ok(userService.applyChanges(user.getId(), updates));
-    }
-
-    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED)
-    private class ForbiddenException extends RuntimeException {
     }
 }

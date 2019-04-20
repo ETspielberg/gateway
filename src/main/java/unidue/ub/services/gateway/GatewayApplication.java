@@ -28,6 +28,10 @@ public class GatewayApplication {
 		SpringApplication.run(GatewayApplication.class, args);
 	}
 
+	/**
+	 * adding the AJP connector to bind to the Apache httpd on the server.
+	 * @return
+	 */
 	@Bean
 	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainer() {
 		return server -> {

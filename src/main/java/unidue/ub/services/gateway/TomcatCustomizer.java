@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class TomcatCustomizer implements WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
 
+    /**
+     * allowing for bad characters ("{}|") in query string
+     * @param factory
+     */
     public void customize(TomcatServletWebServerFactory factory) {
         factory.addConnectorCustomizers(new TomcatConnectorCustomizer() {
             @Override

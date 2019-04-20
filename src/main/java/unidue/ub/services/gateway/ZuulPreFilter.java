@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.*;
+
 @Component
 public class ZuulPreFilter extends ZuulFilter {
 

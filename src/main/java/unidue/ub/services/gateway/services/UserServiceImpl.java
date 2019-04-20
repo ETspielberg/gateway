@@ -31,6 +31,7 @@ public class UserServiceImpl implements UserService {
 
     private Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
 
+
     @Override
     public void save(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
             user.addRole(roleRepository.findByName("ROLE_ADMIN"));
         else
             user.addRole(roleRepository.findByName("ROLE_GUEST"));
+        user.setEmail(user.getEmail().toLowerCase());
         userRepository.save(user);
     }
 
@@ -116,22 +118,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User applyChanges(Long id, Map<String, String> updates) {
+        User user = new User();
         if (updates.get("newPassword") != null) {
             log.info("setting new Password");
-            return updatePassword(id, updates.get("newPassword"));
-        } else if (updates.get("roles") != null) {
+            user = updatePassword(id, updates.get("newPassword"));
+        }
+        if (updates.get("roles") != null) {
             Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {
             }, updates.get("roles"));
-            return updateRoles(id, roles);
-        } else if (updates.get("fullname") != null) {
+            user = updateRoles(id, roles);
+        }
+        if (updates.get("fullname") != null) {
             log.info("setting full name");
-            return updateFullname(id, updates.get("fullname"));
+            user = updateFullname(id, updates.get("fullname"));
         }
-        else if (updates.get("email") != null) {
+        if (updates.get("email") != null) {
             log.info("setting email");
-            return updateEmail(id, updates.get("email"));
+            user = updateEmail(id, updates.get("email"));
         }
-        return null;
+        return user;
     }
 
     private <T> T fromJSON(final TypeReference<T> type,

@@ -1,5 +1,6 @@
 package unidue.ub.services.gateway;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -14,9 +15,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
 
 @Configuration
@@ -49,18 +55,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
+        http.cors();
         http
-            .httpBasic().and()
+                .httpBasic().and()
                 .authorizeRequests().antMatchers(HttpMethod.POST, "/service/elisa/**").permitAll().and()
                 .authorizeRequests().antMatchers(HttpMethod.GET, "/api/counterretrieval/ebookcounter/**").permitAll().and()
                 //.hasIpAddress("132.252.181.87").and()
-            .authorizeRequests()
-                .antMatchers("/index.html", "/login", "/register", "/rss").permitAll()
+                .authorizeRequests()
+                .antMatchers("/index.html", "/login", "/register", "/rss", "/libintelLogin").permitAll()
                 .antMatchers("/error").permitAll()
                 .antMatchers("/saml/**").permitAll()
                 .antMatchers(HttpMethod.GET, "service/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/protokoll/**", "/protokoll", "/getter/**").permitAll()
-                .antMatchers(HttpMethod.GET,"/files/viewer/**", "/files/custom/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/files/viewer/**", "/files/custom/**").permitAll()
                 .antMatchers("/files/**", "/files").authenticated()
                 .antMatchers("/api/**").access("hasIpAddress('::1') or isAuthenticated()")
                 .antMatchers("/services/**").access("hasIpAddress('::1') or isAuthenticated()")
@@ -68,17 +75,21 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/system/**").hasRole("ADMIN")
                 .antMatchers("/fachref/**").hasRole("FACHREFERENT")
                 .antMatchers("/media/**").hasRole("MEDIA")
-                .antMatchers("/bibliometrics/**").authenticated() //.hasRole("BIBLIOMETRICS")
+                .antMatchers("/bibliometrics/**").hasRole("BIBLIOMETRICS")
                 .anyRequest().authenticated()
                 .anyRequest().permitAll()
-            .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout","/files/counterbuilder","/service/elisa/sendEav", "/service/elisa/receiveEav");
+                .and()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout", "/files/counterbuilder", "/service/elisa/sendEav", "/service/elisa/receiveEav", "/libintelLogin");
         http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
                 //.authenticationEntryPoint(getAuthEntryPoint())
-            .and()
+                .and()
                 .formLogin()
-                .loginPage("/login").failureForwardUrl("/login?error")
-            .and()
+                .loginPage("/login")
+                .loginProcessingUrl("/libintelLogin")
+                .defaultSuccessUrl("/start")
+                .successHandler(restAuthenticationSuccessHandler())
+                .failureForwardUrl("/login?error")
+                .and()
                 .logout()
                 .logoutUrl("/logout")
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
@@ -86,10 +97,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public AuthenticationSuccessHandler restAuthenticationSuccessHandler(){
+        return new RestAuthenticationSuccessHandler();
+    }
+
+    @Bean
     public static ServletListenerRegistrationBean httpSessionEventPublisher() {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
-
 
 	/*
 	// Initialization of the velocity engine

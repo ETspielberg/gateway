@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import unidue.ub.services.gateway.exceptions.StorageException;
@@ -23,6 +22,7 @@ import java.util.stream.Stream;
 @Service
 public class StorageServiceImpl implements StorageService {
 
+    // read the configuration properties to set the local storage
     @Value("${ub.statistics.data.dir}")
     private String datadir;
 
@@ -32,6 +32,7 @@ public class StorageServiceImpl implements StorageService {
 
     public void setModule(String module) {
         this.module = module;
+        this.rootLocation = Paths.get(this.datadir + "/" + module);
     }
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -45,11 +46,11 @@ public class StorageServiceImpl implements StorageService {
         log.info("storing " + filename + " to " + rootLocation.toString());
         try {
             if (file.isEmpty()) {
-                log.info("empty file");
+                log.warn("empty file");
                 throw new StorageException("Failed to store empty file " + filename);
             }
             if (filename.contains("..")) {
-                log.info("cannot Store file at given directory");
+                log.warn("cannot Store file at given directory");
                 // This is a security check
                 throw new StorageException(
                         "Cannot store file with relative path outside current directory "
@@ -57,9 +58,9 @@ public class StorageServiceImpl implements StorageService {
             }
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename),
                     StandardCopyOption.REPLACE_EXISTING);
-            log.info("saved file");
+            log.debug("saved file");
         } catch (IOException e) {
-            log.info("failed to store file");
+            log.warn("failed to store file");
             throw new StorageException("Failed to store file " + filename, e);
         }
     }
@@ -102,14 +103,6 @@ public class StorageServiceImpl implements StorageService {
         } catch (MalformedURLException e) {
             throw new StorageFileNotFoundException("Could not read file: " + filename, e);
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        rootLocation = Paths.get(datadir + "/" + module);
-        if (!rootLocation.toFile().exists())
-            rootLocation.toFile().mkdirs();
-        FileSystemUtils.deleteRecursively(rootLocation.toFile());
     }
 
     @Override

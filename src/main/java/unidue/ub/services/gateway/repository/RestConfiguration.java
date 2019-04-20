@@ -1,4 +1,4 @@
-package unidue.ub.services.gateway;
+package unidue.ub.services.gateway.repository;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -12,6 +12,10 @@ import unidue.ub.services.gateway.model.User;
 @Configuration
 public class RestConfiguration extends RepositoryRestConfigurerAdapter {
 
+    /**
+     * Exposing the Ids for the users and roles
+     * @param config the repository rest configuration object
+     */
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
         config.exposeIdsFor(User.class,Role.class);

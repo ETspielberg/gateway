@@ -29,6 +29,11 @@ import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    public WebSecurityConfiguration(DatabaseUserDetailsServiceImpl userDetailsServiceImpl) {
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
+    }
+
     //@Autowired
     //private SAMLUserDetailsServiceImpl samlUserDetailsServiceImpl;
 
@@ -38,8 +43,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    @Autowired
-    private DatabaseUserDetailsServiceImpl userDetailsServiceImpl;
+    private final DatabaseUserDetailsServiceImpl userDetailsServiceImpl;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -56,8 +60,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
         http.cors();
+        http.httpBasic().disable();
         http
-                .httpBasic().and()
                 .authorizeRequests().antMatchers(HttpMethod.POST, "/service/elisa/**").permitAll().and()
                 .authorizeRequests().antMatchers(HttpMethod.GET, "/api/counterretrieval/ebookcounter/**").permitAll().and()
                 //.hasIpAddress("132.252.181.87").and()

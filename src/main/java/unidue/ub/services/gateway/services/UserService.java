@@ -3,6 +3,7 @@ package unidue.ub.services.gateway.services;
 import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 
+import javax.security.auth.login.FailedLoginException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,11 +19,11 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    User findByUsername(String username);
+    User loadByUsername(String username);
 
     User findByEmail(String email);
 
-    User updatePassword(Long id, String newPassword);
+    User updatePassword(String username, String oldPassword, String newPassword) throws FailedLoginException;
 
     User updateRoles(Long id, Set<Role> roles);
 

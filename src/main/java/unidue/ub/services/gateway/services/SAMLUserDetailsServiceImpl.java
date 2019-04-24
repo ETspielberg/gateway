@@ -1,13 +1,12 @@
 package unidue.ub.services.gateway.services;
 
-import org.opensaml.xml.schema.impl.XSAnyImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml.SAMLCredential;
 import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Service;
 import unidue.ub.services.gateway.model.User;
 
-
+/*
 @Service
 public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
 
@@ -17,7 +16,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
      * @return the User object
      * @throws UsernameNotFoundException thrown if the nodes in the SAML credentials cannot be found
      */
-    public User loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
+/*    public User loadUserBySAML(SAMLCredential credential) throws UsernameNotFoundException {
         User user = new User();
         user.setUsername(getValue(credential,"uid"));
         user.setEmail(getValue(credential, "mail"));
@@ -32,7 +31,7 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
      * @return the string contents of the attribute
      */
 
-    private String getValue(SAMLCredential credential, String node) {
+/*    private String getValue(SAMLCredential credential, String node) {
         XSAnyImpl xmlSchema = (XSAnyImpl) credential.getAttributes().stream()
                 .filter(a -> a.getFriendlyName().equals(node))
                 .findFirst().orElseThrow(() -> new UsernameNotFoundException("uid not found from assertion"))
@@ -41,3 +40,4 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService {
     }
 
 }
+*/

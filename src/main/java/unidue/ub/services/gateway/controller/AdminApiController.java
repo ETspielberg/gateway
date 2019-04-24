@@ -8,6 +8,7 @@ import unidue.ub.services.gateway.model.Role;
 import unidue.ub.services.gateway.model.User;
 import unidue.ub.services.gateway.repository.RoleRepository;
 import unidue.ub.services.gateway.services.UserService;
+import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class AdminApiController {
     RoleRepository roleRepository;
 
     @Autowired
-    public AdminApiController(UserService userService, RoleRepository roleRepository) {
+    public AdminApiController(DatabaseUserDetailsServiceImpl userService, RoleRepository roleRepository) {
         this.userService = userService;
         this.roleRepository = roleRepository;
     }

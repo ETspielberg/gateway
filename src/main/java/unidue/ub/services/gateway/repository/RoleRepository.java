@@ -6,6 +6,9 @@ import unidue.ub.services.gateway.model.Role;
 
 import java.util.List;
 
+/**
+ * manages the available roles users can have
+ */
 public interface RoleRepository extends JpaRepository<Role,Long> {
 
     Role findByName(String name);

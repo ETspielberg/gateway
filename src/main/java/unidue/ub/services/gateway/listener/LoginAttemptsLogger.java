@@ -1,4 +1,4 @@
-package unidue.ub.services.gateway.controller;
+package unidue.ub.services.gateway.listener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +20,10 @@ public class LoginAttemptsLogger {
         log.info("Principal " + auditEvent.getPrincipal() + " - " + auditEvent.getType());
 
         WebAuthenticationDetails details = (WebAuthenticationDetails) auditEvent.getData().get("details");
-
-        log.info("  Remote IP address: " + details.getRemoteAddress());
-        log.info("  Session Id: " + details.getSessionId());
-        log.info("  Request URL: " + auditEvent.getData().get("requestUrl"));
+        if (details != null) {
+            log.info("  Remote IP address: " + details.getRemoteAddress());
+            log.info("  Session Id: " + details.getSessionId());
+            log.info("  Request URL: " + auditEvent.getData().get("requestUrl"));
+        }
     }
 }

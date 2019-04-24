@@ -1,4 +1,4 @@
-package unidue.ub.services.gateway.controller;
+package unidue.ub.services.gateway.model;
 
 public class FileWithLink {
 

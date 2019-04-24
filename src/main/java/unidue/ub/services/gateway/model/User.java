@@ -25,25 +25,22 @@ public class User {
 
 	@NotNull
 	@Column(unique=true)
-	private String username;
+	private String username = "";
 
 	@JsonIgnore
-	private String password;
+	private String password = "";
 
-	private String email;
+	private String email = "";
 
-	private String fullname;
+	private String fullname = "";
+
+	private boolean enabled = false;
 
 	@ManyToMany
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
-	public User() {
-		fullname = "";
-		email = "";
-		username = "";
-		password = "";
-	}
+	public User() { }
 
 	public String getEmail() {
 		return email;
@@ -119,4 +116,11 @@ public class User {
 		roles.add(role);
 	}
 
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

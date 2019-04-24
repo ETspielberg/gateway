@@ -11,11 +11,11 @@ import unidue.ub.services.gateway.model.User;
 @Service
 public class UserValidator {
 
-    private final UserServiceImpl userServiceImpl;
+    private final DatabaseUserDetailsServiceImpl databaseUserDetailsServiceImpl;
 
     @Autowired
-    public UserValidator(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
+    public UserValidator(DatabaseUserDetailsServiceImpl databaseUserDetailsServiceImpl) {
+        this.databaseUserDetailsServiceImpl = databaseUserDetailsServiceImpl;
     }
 
     /**
@@ -38,7 +38,7 @@ public class UserValidator {
         if (user.getUsername().length() < 4 || user.getUsername().length() > 32) {
             return false;
         }
-        User userFound = userServiceImpl.findByUsername(user.getUsername());
+        User userFound = databaseUserDetailsServiceImpl.loadByUsername(user.getUsername());
         return userFound == null;
     }
 }

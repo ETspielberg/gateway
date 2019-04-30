@@ -1,10 +1,22 @@
 package unidue.ub.services.gateway;
 
-import com.google.common.collect.ImmutableList;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.velocity.app.VelocityEngine;
+import org.opensaml.saml2.metadata.provider.AbstractMetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProvider;
+import org.opensaml.saml2.metadata.provider.MetadataProviderException;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.parse.ParserPool;
+import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,28 +26,51 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.saml.*;
+import org.springframework.security.saml.context.SAMLContextProviderImpl;
+import org.springframework.security.saml.key.JKSKeyManager;
+import org.springframework.security.saml.key.KeyManager;
+import org.springframework.security.saml.log.SAMLDefaultLogger;
+import org.springframework.security.saml.metadata.*;
+import org.springframework.security.saml.parser.ParserPoolHolder;
+import org.springframework.security.saml.processor.*;
+import org.springframework.security.saml.util.VelocityFactory;
+import org.springframework.security.saml.websso.*;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.w3c.dom.Document;
 import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
+import unidue.ub.services.gateway.services.SAMLUserDetailsServiceImpl;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    public WebSecurityConfiguration(DatabaseUserDetailsServiceImpl userDetailsServiceImpl) {
+    public WebSecurityConfiguration(DatabaseUserDetailsServiceImpl userDetailsServiceImpl, SAMLUserDetailsServiceImpl samlUserDetailsService) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
-    }
+		this.samlUserDetailsService = samlUserDetailsService;
+	}
 
-    //@Autowired
-    //private SAMLUserDetailsServiceImpl samlUserDetailsServiceImpl;
+    private final SAMLUserDetailsServiceImpl samlUserDetailsService;
 
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
     @Override
@@ -53,12 +88,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureAuthSource(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(bCryptPasswordEncoder());
-        //auth.authenticationProvider(samlAuthenticationProvider());
+        auth.authenticationProvider(samlAuthenticationProvider());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
+        http.addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class).addFilterAfter(samlFilter(), BasicAuthenticationFilter.class);
         http.cors();
         http.httpBasic().disable();
         http
@@ -110,7 +145,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
 
-	/*
 	// Initialization of the velocity engine
 	@Bean
 	public VelocityEngine velocityEngine() {
@@ -144,7 +178,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	public SAMLAuthenticationProvider samlAuthenticationProvider() {
 		SAMLAuthenticationProvider samlAuthenticationProvider = new SAMLAuthenticationProvider();
-		samlAuthenticationProvider.setUserDetails(samlUserDetailsServiceImpl);
+		samlAuthenticationProvider.setUserDetails(samlUserDetailsService);
 		samlAuthenticationProvider.setForcePrincipalAsString(false);
 		return samlAuthenticationProvider;
 	}
@@ -207,11 +241,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public KeyManager keyManager() {
 		DefaultResourceLoader loader = new DefaultResourceLoader();
 		Resource storeFile = loader
-				.getResource("classpath:/saml/samlKeystore.jks");
+				.getResource("classpath:saml/idp-metadata.jks");
 		String storePass = "70fbca7e";
 		Map<String, String> passwords = new HashMap<>();
-		passwords.put("apollo", "70fbca7e");
-		String defaultKey = "apollo";
+		passwords.put("lib-intel-sp", "70fbca7e");
+		String defaultKey = "lib-intel-sp";
 		return new JKSKeyManager(storeFile, storePass, passwords, defaultKey);
 	}
 
@@ -264,8 +298,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 					e.printStackTrace();
 					throw new MetadataProviderException();
 				}
-
-
 			}
 		};
 		ExtendedMetadataDelegate extendedMetadataDelegate =
@@ -302,7 +334,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
 		SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler =
 				new SavedRequestAwareAuthenticationSuccessHandler();
-		successRedirectHandler.setDefaultTargetUrl("/landing");
+		successRedirectHandler.setDefaultTargetUrl("/start");
 		return successRedirectHandler;
 	}
 
@@ -341,7 +373,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Bean
 	public SimpleUrlLogoutSuccessHandler successLogoutHandler() {
 		SimpleUrlLogoutSuccessHandler successLogoutHandler = new SimpleUrlLogoutSuccessHandler();
-		successLogoutHandler.setDefaultTargetUrl("/");
+		successLogoutHandler.setDefaultTargetUrl("/goodBye");
 		return successLogoutHandler;
 	}
 
@@ -436,12 +468,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private static AuthenticationEntryPoint getAuthEntryPoint() {
-		return new AuthenticationEntryPoint() {
-			@Override
-			public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied");
-			}
-		};
+		return (request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access Denied");
 	}
-	*/
 }

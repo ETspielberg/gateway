@@ -23,13 +23,9 @@ public interface UserService {
 
     User findByEmail(String email);
 
-    User updatePassword(String username, String oldPassword, String newPassword) throws FailedLoginException;
+    User updatePassword(User user, String oldPassword, String newPassword) throws FailedLoginException;
 
     User updateRoles(Long id, Set<Role> roles);
-
-    User updateFullname(Long id, String fullname);
-
-    User updateEmail(Long id, String email);
 
     User applyChanges(Long id, Map<String, String> updates);
 }

@@ -90,43 +90,13 @@ public class DatabaseUserDetailsServiceImpl implements UserService, UserDetailsS
     }
 
     @Override
-    public User updatePassword(String username, String oldPassword, String newPassword) throws FailedLoginException {
-        User user;
-        if (username.contains("@"))
-            user = findByEmail(username);
-        else
-            user = loadByUsername(username);
-        if (user == null)
-            throw new UsernameNotFoundException("user " + username + " not found");
-        if (!bCryptPasswordEncoder.encode(oldPassword).equals(user.getPassword()))
+    public User updatePassword(User user, String oldPassword, String newPassword) throws FailedLoginException {
+        log.info("comparing old password " + user.getPassword() + " with new one " + bCryptPasswordEncoder.encode(oldPassword));
+        if (!bCryptPasswordEncoder.matches(oldPassword, user.getPassword()))
             throw new FailedLoginException("old passwort is not correct");
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userRepository.save(user);
         return user;
-    }
-
-    @Override
-    public User updateFullname(Long id, String fullname) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setFullname(fullname);
-            userRepository.save(user);
-            return user;
-        } else
-            return null;
-    }
-
-    @Override
-    public User updateEmail(Long id, String email) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setEmail(email);
-            userRepository.save(user);
-            return user;
-        } else
-            return null;
     }
 
     @Override
@@ -142,21 +112,26 @@ public class DatabaseUserDetailsServiceImpl implements UserService, UserDetailsS
     }
 
     @Override
+    @Transactional
     public User applyChanges(Long id, Map<String, String> updates) {
-        User user = new User();
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty())
+            throw new UsernameNotFoundException("the user could not be found");
+        User user = userOptional.get();
         if (updates.get("roles") != null) {
             Set<Role> roles = fromJSON(new TypeReference<Set<Role>>() {
             }, updates.get("roles"));
-            user = updateRoles(id, roles);
+            user.setRoles(roles);
         }
         if (updates.get("fullname") != null) {
             log.info("setting full name");
-            user = updateFullname(id, updates.get("fullname"));
+            user.setFullname(updates.get("fullname"));
         }
         if (updates.get("email") != null) {
             log.info("setting email");
-            user = updateEmail(id, updates.get("email"));
+            user.setEmail(updates.get("email"));
         }
+        userRepository.save(user);
         return user;
     }
 

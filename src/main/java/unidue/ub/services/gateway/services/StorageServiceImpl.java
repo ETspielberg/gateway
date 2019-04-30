@@ -38,10 +38,14 @@ public class StorageServiceImpl implements StorageService {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void store(MultipartFile file) {
+    public boolean store(MultipartFile file) {
         rootLocation = Paths.get(datadir + "/" + module);
         if (!rootLocation.toFile().exists())
             rootLocation.toFile().mkdirs();
+        if (file == null)
+            return false;
+        if (file.getOriginalFilename() == null)
+            return false;
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         log.info("storing " + filename + " to " + rootLocation.toString());
         try {
@@ -59,6 +63,7 @@ public class StorageServiceImpl implements StorageService {
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename),
                     StandardCopyOption.REPLACE_EXISTING);
             log.debug("saved file");
+            return true;
         } catch (IOException e) {
             log.warn("failed to store file");
             throw new StorageException("Failed to store file " + filename, e);
@@ -69,7 +74,7 @@ public class StorageServiceImpl implements StorageService {
     public Stream<Path> loadAll() {
         rootLocation = Paths.get(datadir + "/" + module);
         if (!rootLocation.toFile().exists())
-            rootLocation.toFile().mkdirs();
+            rootLocation.toFile().mkdir();
         try {
             return Files.walk(this.rootLocation, 1)
                     .filter(path -> !path.equals(this.rootLocation))
@@ -109,8 +114,7 @@ public class StorageServiceImpl implements StorageService {
     public boolean deleteFile(String filename) {
         rootLocation = Paths.get(datadir + "/" + module);
         Path path = load(filename);
-        boolean deleted = path.toFile().delete();
-        return deleted;
+        return path.toFile().delete();
     }
 
     @Override

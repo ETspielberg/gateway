@@ -14,11 +14,13 @@ import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @SpringBootApplication
 @EnableZuulProxy
 @EnableEurekaClient
 @EntityScan({"unidue.ub.services.gateway.model"})
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class GatewayApplication {
 
 	@Value("${tomcat.ajp.port}")
@@ -30,7 +32,7 @@ public class GatewayApplication {
 
 	/**
 	 * adding the AJP connector to bind to the Apache httpd on the server.
-	 * @return
+	 * @return customizer to add ajp connector to tomcat server.
 	 */
 	@Bean
 	public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainer() {

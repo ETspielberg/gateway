@@ -1,6 +1,5 @@
 package unidue.ub.services.gateway.controller;
 
-import com.sun.mail.iap.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import unidue.ub.services.gateway.exceptions.ForbiddenException;
 import unidue.ub.services.gateway.model.User;
 import unidue.ub.services.gateway.services.DatabaseUserDetailsServiceImpl;
 import unidue.ub.services.gateway.services.UserValidator;
 
+import javax.security.auth.login.FailedLoginException;
 import java.security.Principal;
 import java.util.*;
 
@@ -88,7 +87,28 @@ public class GatewayController {
 
     @PutMapping("/updateCurrentUser")
     public ResponseEntity<User> updateCurrentUser(@RequestBody Map<String, String> updates) {
+        log.info("changing user data for user " + updates.get("username"));
         User user = userService.loadByUsername(updates.get("username"));
-        return ResponseEntity.ok(userService.applyChanges(user.getId(), updates));
+        log.info("found user " + user);
+        user = userService.applyChanges(user.getId(), updates);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/updatePassword")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> update) {
+        String newPassword = update.get("newPassword");
+        String oldPassword = update.get("oldPassword");
+        if (newPassword == null || oldPassword == null)
+            return ResponseEntity.badRequest().body("passwords cannot be null");
+        if (newPassword.isEmpty() || oldPassword.isEmpty())
+            return ResponseEntity.badRequest().body("passwords cannot be empty");
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userService.loadByUsername(principal.getUsername());
+        try {
+            userService.updatePassword(user,oldPassword, newPassword);
+            return ResponseEntity.ok("password updated");
+        } catch (FailedLoginException fle) {
+            return ResponseEntity.badRequest().body("wrong old passwort");
+        }
     }
 }

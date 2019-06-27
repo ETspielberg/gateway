@@ -125,6 +125,14 @@
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+        <repository>
+            <id>jvnet-nexus-staging</id>
+            <url>http://maven.java.net/content/repositories/staging/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
     <build>
         <finalName>${project.name}</finalName>
         <plugins>
@@ -151,6 +159,17 @@
                 <configuration>
                     <executable>true</executable>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.21.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                        <version>6.2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

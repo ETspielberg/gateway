@@ -22,9 +22,14 @@ public class SanitizedRequest extends HttpServletRequestWrapper {
     @Override
     public String getQueryString() {
         String queryString = super.getQueryString();
-        if (queryString != null)
+        if (queryString != null) {
             if (queryString.contains("{"))
                 queryString = queryString.replace("{", "");
+            if (queryString.contains("%0A"))
+                queryString = queryString.replace("%0A", "");
+            if (queryString.contains("%0D"))
+                queryString = queryString.replace("%0A", "");
+        }
         return queryString;
     }
 }

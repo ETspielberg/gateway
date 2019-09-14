@@ -1,0 +1,12 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: gateway
+  cloud:
+    config:
+      uri: http://localhost:11811
+      name: authentication, files, gateway
+      username: ${libintel_config_username:dalek}
+      password: ${libintel_config_password:3l1m1nat3}
+      label: ${libintel.profile:dev}

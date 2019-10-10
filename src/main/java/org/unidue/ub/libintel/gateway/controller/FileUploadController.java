@@ -32,7 +32,16 @@ public class FileUploadController {
     @GetMapping("/files/{module}")
     public ResponseEntity<?> listUploadedFiles(@PathVariable("module") String module) {
         storageService.setModule(module);
-        return ResponseEntity.ok(storageService.loadAll().map(
+        return ResponseEntity.ok(storageService.showPrivateFiles().map(
+                path -> new FileWithLink(path.getFileName().toString(), MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
+                        "serveFile", path.getFileName().toString(),module).build().toString() ))
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping("/files/public/{module}")
+    public ResponseEntity<?> listUploadedPublicFiles(@PathVariable("module") String module) {
+        storageService.setModule(module);
+        return ResponseEntity.ok(storageService.showPublicFiles().map(
                 path -> new FileWithLink(path.getFileName().toString(), MvcUriComponentsBuilder.fromMethodName(FileUploadController.class,
                         "serveFile", path.getFileName().toString(),module).build().toString() ))
                 .collect(Collectors.toList()));
@@ -42,19 +51,34 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename, @PathVariable("module") String module) {
         storageService.setModule(module);
-        Resource file = storageService.loadAsResource(filename);
+        Resource file = storageService.loadPrivateAsResource(filename);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
+    @GetMapping("/files/public/{module}/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> servePublicFile(@PathVariable String filename, @PathVariable("module") String module) {
+        storageService.setModule(module);
+        Resource file = storageService.loadPublicAsResource(filename);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
     @PostMapping("/files/{module}")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file, @PathVariable("module") String module,
+    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file, @PathVariable("module") String module) {
+        storageService.setModule(module);
+        storageService.storePrivate(file);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/publicFiles/{module}")
+    public String handlePublicFileUpload(@RequestParam("file") MultipartFile file, @PathVariable("module") String module,
                                    RedirectAttributes redirectAttributes) {
         storageService.setModule(module);
-        storageService.store(file);
+        storageService.storePublic(file);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
-
         return "redirect:/";
     }
 
@@ -62,7 +86,26 @@ public class FileUploadController {
     public ResponseEntity<?> deletFile(@PathVariable String filename, @PathVariable("module") String module) {
         storageService.setModule(module);
         try {
-            boolean deleted = storageService.deleteFile(filename);
+            boolean deleted = storageService.deletePrivateFile(filename);
+            if (deleted) {
+                log.info("deleted file " + filename);
+                return ResponseEntity.accepted().build();
+            }
+            else {
+                log.warn("could not delete file " + filename);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.warn("could not find file " + filename);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/files/public/{module}/{filename:.+}")
+    public ResponseEntity<?> deletPublicFile(@PathVariable String filename, @PathVariable("module") String module) {
+        storageService.setModule(module);
+        try {
+            boolean deleted = storageService.deletePublicFile(filename);
             if (deleted) {
                 log.info("deleted file " + filename);
                 return ResponseEntity.accepted().build();

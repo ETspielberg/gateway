@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.unidue.ub.libintel.gateway.exceptions.StorageException;
 import org.unidue.ub.libintel.gateway.exceptions.StorageFileNotFoundException;
 
+import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -38,10 +40,100 @@ public class StorageServiceImpl implements StorageService {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public boolean store(MultipartFile file) {
-        rootLocation = Paths.get(datadir + "/" + module);
+    @RolesAllowed("ROLE_ADMIN")
+    public boolean storePublic(MultipartFile file) {
+        setRootLocation(false);
+        return storeFile(file);
+    }
+
+    @Override
+    public boolean storePrivate(MultipartFile file) {
+        setRootLocation(true);
+        return storeFile(file);
+    }
+
+    @Override
+    public Stream<Path> showPrivateFiles() {
+        setRootLocation(true);
+        return this.showFiles();
+    }
+
+    @Override
+    @RolesAllowed("ROLE_ADMIN")
+    public Stream<Path> showPublicFiles() {
+        setRootLocation(false);
+        return this.showFiles();
+    }
+
+    @Override
+    public Path loadPrivate(String filename) {
+        setRootLocation(true);
+        return rootLocation.resolve(filename);
+    }
+
+    @Override
+    public Path loadPublic(String filename) {
+        setRootLocation(false);
+        return rootLocation.resolve(filename);
+    }
+
+    @Override
+    public Resource loadPublicAsResource(String filename) {
+        setRootLocation(false);
+        return loadAsResource(filename);
+
+    }
+
+    @Override
+    public Resource loadPrivateAsResource(String filename) {
+        setRootLocation(true);
+        return this.loadAsResource(filename);
+    }
+
+    @Override
+    @RolesAllowed("ROLE_ADMIN")
+    public boolean deletePublicFile(String filename) {
+        Path path = loadPublic(filename);
+        return path.toFile().delete();
+    }
+
+    @Override
+    public boolean deletePrivateFile(String filename) {
+        Path path = loadPrivate(filename);
+        return path.toFile().delete();
+    }
+
+    @Override
+    public void init() {
+        try {
+            rootLocation = Paths.get(datadir + "/" + module);
+            Files.createDirectories(rootLocation);
+        } catch (IOException e) {
+            throw new StorageException("Could not initialize storage", e);
+        }
+    }
+
+    private void setRootLocation(boolean isPrivate) {
+        String username = "public";
+        if (isPrivate)
+            username = SecurityContextHolder.getContext().getAuthentication().getName();
+        rootLocation = Paths.get(datadir + "/" + username + "/" + module);
         if (!rootLocation.toFile().exists())
             rootLocation.toFile().mkdirs();
+    }
+
+    private Stream<Path> showFiles() {
+        try {
+            return Files.walk(this.rootLocation, 1)
+                    .filter(path -> !path.equals(this.rootLocation))
+                    .map(path -> this.rootLocation.relativize(path));
+        } catch (IOException ioe) {
+            log.error("failed to read stored files", ioe);
+            return null;
+        }
+    }
+
+    private boolean storeFile(MultipartFile file) {
         if (file == null)
             return false;
         if (file.getOriginalFilename() == null)
@@ -70,60 +162,20 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-    @Override
-    public Stream<Path> loadAll() {
-        rootLocation = Paths.get(datadir + "/" + module);
-        if (!rootLocation.toFile().exists())
-            rootLocation.toFile().mkdir();
+    private Resource loadAsResource(String filename) {
         try {
-            return Files.walk(this.rootLocation, 1)
-                    .filter(path -> !path.equals(this.rootLocation))
-                    .map(path -> this.rootLocation.relativize(path));
-        } catch (IOException e) {
-            throw new StorageException("Failed to read stored files", e);
-        }
-
-    }
-
-    @Override
-    public Path load(String filename) {
-        rootLocation = Paths.get(datadir + "/" + module);
-        if (!rootLocation.toFile().exists())
-            rootLocation.toFile().mkdirs();
-        return rootLocation.resolve(filename);
-    }
-
-    @Override
-    public Resource loadAsResource(String filename) {
-        try {
-            Path file = load(filename);
+            Path file = loadPublic(filename);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
                 throw new StorageFileNotFoundException(
                         "Could not read file: " + filename);
-
             }
         } catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file: " + filename, e);
+            log.error("could not read file: " + filename, e);
+            return null;
         }
     }
 
-    @Override
-    public boolean deleteFile(String filename) {
-        rootLocation = Paths.get(datadir + "/" + module);
-        Path path = load(filename);
-        return path.toFile().delete();
-    }
-
-    @Override
-    public void init() {
-        try {
-            rootLocation = Paths.get(datadir + "/" + module);
-            Files.createDirectories(rootLocation);
-        } catch (IOException e) {
-            throw new StorageException("Could not initialize storage", e);
-        }
-    }
 }

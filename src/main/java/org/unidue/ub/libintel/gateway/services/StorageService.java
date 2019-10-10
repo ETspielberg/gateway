@@ -10,15 +10,25 @@ public interface StorageService {
 
     void init();
 
-    boolean store(MultipartFile file);
+    boolean storePrivate(MultipartFile file);
 
-    Stream<Path> loadAll();
+    boolean storePublic(MultipartFile file);
 
-    Path load(String filename);
+    Stream<Path> showPublicFiles();
 
-    Resource loadAsResource(String filename);
+    Stream<Path> showPrivateFiles();
 
-    boolean deleteFile(String filename);
+    Path loadPublic(String filename);
+
+    Path loadPrivate(String filename);
+
+    Resource loadPublicAsResource(String filename);
+
+    Resource loadPrivateAsResource(String filename);
+
+    boolean deletePublicFile(String filename);
+
+    boolean deletePrivateFile(String filename);
 
     void setModule(String module);
 

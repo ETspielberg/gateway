@@ -1,6 +1,7 @@
 package org.unidue.ub.libintel.gateway;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,11 +17,21 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.unidue.ub.libintel.gateway.services.DatabaseUserDetailsServiceImpl;
+
+import java.util.Arrays;
+import java.util.List;
+
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Value("#{'${libintel.cors.allowed.hosts}'.split(',')}")
+    private List<String> allowedHosts;
 
     @Autowired
     public WebSecurityConfiguration(DatabaseUserDetailsServiceImpl userDetailsServiceImpl) {
@@ -70,7 +81,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .anyRequest().permitAll()
                 .and()
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout", "/files/counterbuilder", "/service/elisa/sendEav", "/service/elisa/receiveEav", "/libintelLogin", "/system/elk/api/**");
+                .cors()
+                .and()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).ignoringAntMatchers("/logout", "/files/counterbuilder", "/service/elisa/sendEav", "/service/elisa/receiveEav", "/libintelLogin");
         http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandlerImpl())
                 //.authenticationEntryPoint(getAuthEntryPoint())
                 .and()
@@ -90,5 +103,15 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationSuccessHandler restAuthenticationSuccessHandler(){
         return new RestAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedHosts);
+        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "PUT"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
